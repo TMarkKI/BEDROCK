@@ -1,3 +1,4 @@
+##create figure 1 for QC = depth/coverage
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
