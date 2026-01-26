@@ -128,3 +128,6 @@ def main():
         gene_positions,
         outdir,
     )
+
+if __name__ == "__main__":
+    main()
