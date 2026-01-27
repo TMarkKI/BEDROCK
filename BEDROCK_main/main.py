@@ -4,7 +4,7 @@ import sys
 import json
 
 from args import get_args
-from data_loading import load_chr_map, load_fai, load_samples
+from data_loading import load_chr_map, load_fai, load_samples, load_genes_as_pyranges
 from check_install import check_install
 from figures.figure1 import figure_1a, figure_1b
 from figures.figure2 import base_composition, plot_base_composition
