@@ -4,14 +4,13 @@ import sys
 import json
 
 from args import get_args
-from io import load_chr_map, load_fai, load_samples, load_genes_as_pyranges
-from figures.fig1_qc import figure_1a, figure_1b
-from figures.fig2_base_comp import base_composition, plot_base_composition
-from figures.fig3 import run_figure3
-from figures.fig4_gene_heatmaps import run_figure4, assign_genes
-from figures.fig5_site_heatmaps import run_figure5
-from figures.fig6_differential_methylation import run_figure6
-#from config import SAMPLE_COLOURS, BASE_COLOURS
+from data_loading import load_chr_map, load_fai, load_samples
+from check_install import check_install
+from figures.figure1 import figure_1a, figure_1b
+from figures.figure2 import base_composition, plot_base_composition
+from figures.merge_figure3 import run_figure3
+from figures.figure4n5 import run_figure4, assign_genes, run_figure5
+from figures.figure6 import run_figure6
 
 def main():
     print(f"BEDROCK - Bedmethyl Visualisation Tool; V0.1; used Modkit output only")
@@ -43,6 +42,9 @@ def main():
     with open(outdir / "run_args.json", "w") as fh:
         json.dump(vars(args), fh, indent=2)
 
+    
+    # ---- check packages ----
+    check_install()
 
     # ---- load data ----
     chr_map = load_chr_map(args.chr_list)
