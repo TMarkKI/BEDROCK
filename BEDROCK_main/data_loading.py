@@ -1,5 +1,5 @@
 import pandas as pd
-from Bio import SeqIO
+import pyranges as pr
 from config import BEDMETHYL_COLUMNS, DROP_BEDMETHYL_COLUMNS
 
 def load_chr_map(chr_list_file):
