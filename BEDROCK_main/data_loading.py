@@ -70,3 +70,43 @@ def load_samples(spreadsheet, chr_map):
         print(f"Loaded {row.sample} | Mean depth {depth.Coverage_depth.mean():.2f} | Depth file {row.depth_path}")
 
     return samples
+
+def load_genes_as_pyranges(gff_path):
+    df = pd.read_csv(
+        gff_path,
+        sep="\t",
+        comment="#",
+        header=None,
+        names=[
+            "Chromosome", "source", "feature",
+            "start", "end", "score",
+            "strand", "frame", "attributes"
+        ]
+    )
+
+    df = df[df["feature"] == "gene"].copy()
+
+    if df.empty:
+        raise ValueError("No 'gene' features found in GFF file")
+
+    df["gene_id"] = df["attributes"].str.extract(r"ID=([^;]+)")
+
+    if df["gene_id"].isna().any():
+        n_missing = df["gene_id"].isna().sum()
+        print(
+            f"[WARN] {n_missing} gene entries missing gene_id; "
+            "loaded but without name"
+        )
+
+    df["Start"] = df["start"] - 1
+    df["End"] = df["end"]
+
+    df = df[[
+        "Chromosome",
+        "Start",
+        "End",
+        "strand",
+        "gene_id"
+    ]]
+
+    return pr.PyRanges(df)    
