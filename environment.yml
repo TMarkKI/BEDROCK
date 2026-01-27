@@ -1,0 +1,15 @@
+name: methylation-analysis
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python>=3.9
+  - pandas
+  - numpy
+  - matplotlib
+  - seaborn
+  - scipy
+  - pyranges
+  - pybedtools
+  - bedtools
+  - tqdm
