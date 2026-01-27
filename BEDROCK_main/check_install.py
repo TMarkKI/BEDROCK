@@ -1,28 +1,29 @@
-REQUIRED_PACKAGES = [
-    "pandas",
-    "numpy",
-    "matplotlib",
-    "seaborn",
-    "scipy",
-    "pyranges",
-    "pybedtools",
-    "tqdm",
-]
+def check_install():
+    REQUIRED_PACKAGES = [
+        "pandas",
+        "numpy",
+        "matplotlib",
+        "seaborn",
+        "scipy",
+        "pyranges",
+        "pybedtools",
+        "tqdm",
+    ]
 
-failed = []
+    failed = []
 
-for pkg in REQUIRED_PACKAGES:
-    try:
-        __import__(pkg)
-        print(f"[OK] {pkg}")
-    except ImportError as e:
-        print(f"[FAIL] {pkg}: {e}")
-        failed.append(pkg)
+    for pkg in REQUIRED_PACKAGES:
+        try:
+            __import__(pkg)
+            print(f"[OK] {pkg}")
+        except ImportError as e:
+            print(f"[FAIL] {pkg}: {e}")
+            failed.append(pkg)
 
-if failed:
-    raise SystemExit(
-        f"\nMissing packages: {', '.join(failed)}\n"
-        "Please install them before running the pipeline."
-    )
-else:
-    print("\nAll required packages are installed ✅")
+    if failed:
+        raise SystemExit(
+            f"\nMissing packages: {', '.join(failed)}\n"
+            "Please install the packages."
+        )
+    else:
+        print("\nAll required packages are installed; running the pipeline now.")
