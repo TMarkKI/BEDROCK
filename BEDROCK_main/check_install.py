@@ -1,5 +1,6 @@
 def check_install():
     REQUIRED_PACKAGES = [
+        "biopython",
         "pandas",
         "numpy",
         "matplotlib",
