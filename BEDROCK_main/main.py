@@ -14,6 +14,9 @@ from figures.figure6 import run_figure6
 
 def main():
     print(f"BEDROCK - Bedmethyl Visualisation Tool; V0.1; used Modkit output only")
+
+    # ---- check packages ----
+    check_install()
     
     args = get_args()
 
@@ -42,9 +45,6 @@ def main():
     with open(outdir / "run_args.json", "w") as fh:
         json.dump(vars(args), fh, indent=2)
 
-    
-    # ---- check packages ----
-    check_install()
 
     # ---- load data ----
     chr_map = load_chr_map(args.chr_list)
