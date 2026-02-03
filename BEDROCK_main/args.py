@@ -2,6 +2,23 @@ import argparse
 
 def get_args():
     parser = argparse.ArgumentParser(
+        prog="BEDROCK",
+        description="BEDROCK – Bedmethyl visualisation tool (Modkit output only)",
+        epilog=(
+            "Example usage:\n"
+            "  python main.py "
+            "--spreadsheet samples.csv "
+            "--chr-list chr_map.csv "
+            "--fai ref.fasta.fai "
+            "--ref ref.fasta "
+            "--annotation genes.gff3 "
+            "--coverage-thresholds 50 100 150 200 250 300 "
+            "--outdir results\n"
+        ),
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    
+    parser = argparse.ArgumentParser(
         description="Methylation analysis from bedmethyl generated from Nanopore data"
     )
 
@@ -53,11 +70,6 @@ def get_args():
         "--no-log-depth",
         action="store_true",
         help="Disable log10 scaling for depth plots"
-    )
-
-    parser.add_argument(
-        "--help",
-        help="python main.py --spreadsheet samples.csv --chr-list chr_map.csv --fai ref.fasta.fai --ref ref.fasta --annotation genes.gff3 --coverage-thresholds (default: 50 100 150 200 250 300) OPTIONAL:  --outdir results --no-log-depth"
     )
 
     return parser.parse_args()
