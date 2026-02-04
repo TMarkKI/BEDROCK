@@ -15,14 +15,14 @@ def load_fai(fai_file, chr_map):
     return df
 
 def load_samples(spreadsheet, chr_map):
-    meta = pd.read_csv(spreadsheet)
+    meta = pd.read_csv(
+        spreadsheet, sep="\t", header=None, 
+        names=["sample_name", "sample_type", "bedmethyl_path", "depth_path"]
+    )
     samples = {}
 
     for _, row in meta.iterrows():
-        bed = pd.read_csv(
-            row.bedmethyl_path, sep="\t", header=None,
-            names=["sample_name", "sample_type", "bedmethyl_path", "depth_path"]
-        )
+        bed = pd.read_csv(row.bedmethyl_path, sep="\t", header=None)
 
         n_expected = len(BEDMETHYL_COLUMNS)
         n_found = bed.shape[1]
