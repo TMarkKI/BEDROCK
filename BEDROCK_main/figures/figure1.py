@@ -40,7 +40,7 @@ def figure_1a(samples, outdir):
     plt.close()
 
 
-def figure_1b(df_depth_all, fai, thresholds):
+def figure_1b(df_depth_all, fai, thresholds, outdir):
     out = []
 
     for t in thresholds:
