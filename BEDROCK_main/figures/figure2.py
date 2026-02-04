@@ -63,7 +63,7 @@ def plot_base_composition(df, outdir):
         hue="base_call_type",
         row="threshold",
         col="sample_name",
-        multiple="stacked",
+        multiple="stack",
         kind="bar",
         height=4,
         palette=base_palette
