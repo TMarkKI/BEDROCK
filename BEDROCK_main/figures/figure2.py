@@ -56,13 +56,14 @@ def plot_base_composition(df, outdir):
 
 
 
-    g = sns.catplot(
+    g = sns.histplot(
         data=df,
         x="Chromosome",
         y="percent",
         hue="base_call_type",
         row="threshold",
         col="sample_name",
+        multiple="stacked",
         kind="bar",
         height=4,
         palette=base_palette
