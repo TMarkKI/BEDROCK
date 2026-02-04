@@ -62,7 +62,7 @@ def load_samples(spreadsheet, chr_map):
         depth = pd.read_csv(row.depth_path, sep="\t", header=None)
         depth.columns = ["Chromosome", "Position", "Coverage_depth"]
         depth["Chromosome"] = depth["Chromosome"].replace(chr_map)
-
+        
         sample_name = row["sample_name"]
         sample_type = row["sample_type"]
 
