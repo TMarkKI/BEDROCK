@@ -64,7 +64,7 @@ def load_samples(spreadsheet, chr_map):
         depth["Chromosome"] = depth["Chromosome"].replace(chr_map)
 
         samples[row.sample] = {
-            "type": row.type,
+            "type": row.sample_type,
             "bed": bed,
             "depth": depth,
             "mean_depth": depth.Coverage_depth.mean()
