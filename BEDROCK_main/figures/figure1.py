@@ -67,7 +67,7 @@ def figure_1b(df_depth_all, fai, thresholds, outdir):
         data=df,
         x="Chromosome",
         y="percent",
-        hue="sample",
+        hue="sample_name",
         col="threshold",
         kind="bar",
         col_wrap=3,
