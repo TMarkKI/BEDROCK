@@ -64,7 +64,6 @@ def plot_base_composition(df, outdir):
         row="threshold",
         col="sample_name",
         kind="bar",
-        multiple="stack",
         height=4,
         palette=base_palette
     )
