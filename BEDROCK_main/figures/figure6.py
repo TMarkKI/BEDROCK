@@ -11,7 +11,7 @@ def compute_gene_methylation(mod_summary, threshold):
     df["methylated"] = df["mod_percentage"] >= threshold
 
     summary = (
-        df.groupby(["gene", "sample"])
+        df.groupby(["gene", "sample_name"])
         .agg(
             total_sites=("mod_percentage", "size"),
             methylated_sites=("methylated", "sum"),
@@ -43,7 +43,7 @@ def attach_gene_positions(methylation_df, gene_positions):
 def plot_manhattan_by_position(df, outpath, title):
     g = sns.FacetGrid(
         df,
-        row="sample",
+        row="sample_name",
         col="chr",
         sharex=False,
         sharey=True,
@@ -76,7 +76,7 @@ def plot_gene_manhattan(df, outpath, title):
         data=df,
         x="gene",
         y="proportion_methylated",
-        hue="sample",
+        hue="sample_name",
         alpha=0.7,
         s=20,
     )
@@ -105,7 +105,7 @@ def top_genes_overall(df, prop=0.05):
 def top_genes_per_sample(df, prop=0.05):
     return (
         df.sort_values("proportion_methylated", ascending=False)
-        .groupby("sample")
+        .groupby("sample_name")
         .head(lambda x: int(np.ceil(len(x) * prop)))
     )
 
@@ -116,7 +116,7 @@ def plot_top_genes(df, outpath, title):
         data=df,
         x="gene",
         y="proportion_methylated",
-        hue="sample",
+        hue="sample_name",
         s=25,
         alpha=0.8,
     )
@@ -130,7 +130,7 @@ def plot_top_genes(df, outpath, title):
 def plot_top_genes_by_sample(df, outpath, title):
     g = sns.FacetGrid(
         df,
-        col="sample",
+        col="sample_name",
         col_wrap=2,
         sharex=False,
         height=4,
