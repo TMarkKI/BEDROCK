@@ -72,7 +72,7 @@ def main():
         df_depth_all,
         fai,
         thresholds,
-        outdir=outdir,
+        outdir,
     )
 
     # ---- FIGURE 2 ----
