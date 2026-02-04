@@ -55,11 +55,11 @@ def main():
 
     # flatten depth once
     df_depth_all = pd.concat(
-        [s["depth"].assign(sample=name) for name, s in samples.items()]
+        [s["depth"].assign(sample_name=name) for name, s in samples.items()]
     )
 
     bed_all = pd.concat(
-        [s["bed"].assign(sample=name) for name, s in samples.items()]
+        [s["bed"].assign(sample_name=name) for name, s in samples.items()]
     )
 
     # ---- FIGURE 1 ----
