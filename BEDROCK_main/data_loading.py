@@ -66,7 +66,7 @@ def load_samples(spreadsheet, chr_map):
         sample_name = row["sample_name"]
         sample_type = row["sample_type"]
 
-        samples[row.sample] = {
+        samples[sample_name] = {
             "type": row.sample_type,
             "bed": bed,
             "depth": depth,
