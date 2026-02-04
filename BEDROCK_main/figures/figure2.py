@@ -11,7 +11,7 @@ def base_composition(df, threshold):
     df = df[df.mod_score >= threshold]
 
     summary = (
-        df.groupby(["Chromosome", "sample"])
+        df.groupby(["Chromosome", "sample_name"])
         [["mod", "canonical_mod", "other_mod",
           "delete_mod", "fail_mod", "variant_mod", "no_call"]]
         .sum()
@@ -19,13 +19,13 @@ def base_composition(df, threshold):
     )
 
     long = summary.melt(
-        id_vars=["Chromosome", "sample"],
+        id_vars=["Chromosome", "sample_name"],
         var_name="base_call_type",
         value_name="n_sites"
     )
 
     long["percent"] = (
-        long.groupby(["Chromosome", "sample"])
+        long.groupby(["Chromosome", "sample_name"])
             .n_sites.transform(lambda x: x / x.sum() * 100)
     )
 
@@ -62,7 +62,7 @@ def plot_base_composition(df, outdir):
         y="percent",
         hue="base_call_type",
         row="threshold",
-        col="sample",
+        col="sample_name",
         kind="bar",
         multiple="stack",
         height=4,
