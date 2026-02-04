@@ -48,7 +48,7 @@ def summarize_modifications(
 
     summary = (
         df.groupby(
-            ["Chromosome", "start", "end", "strand", "sample"]
+            ["Chromosome", "start", "end", "strand", "sample_name"]
         )
         .size()
         .reset_index(name="mod")
@@ -79,7 +79,7 @@ def plot_mod_windows(df, outpath, ylab):
 
     g = sns.FacetGrid(
         df,
-        row="sample",
+        row="sample_name",
         col="Chromosome",
         sharex=False,
         height=3,
