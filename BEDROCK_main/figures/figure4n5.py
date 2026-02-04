@@ -9,7 +9,7 @@ def assign_genes(df_bed, genes_pr):
         chromosomes=df_bed["Chromosome"],
         starts=df_bed["Start_chrom_pos"],
         ends=df_bed["End_chrom_pos"],
-        sample=df_bed["sample"],
+        sample=df_bed["sample_name"],
         mod_code=df_bed["mod_code"],
         mod_score=df_bed["mod_score"],
         percent_mod=df_bed["percent_mod"],
@@ -30,7 +30,7 @@ def summarise_gene_methylation(
     agg = {"mean": "mean", "median": "median"}[stat]
 
     summary = (
-        df.groupby(["gene", "sample"])["percent_mod"]
+        df.groupby(["gene", "sample_name"])["percent_mod"]
         .agg(agg)
         .reset_index(name=f"{stat}_methylation")
     )
@@ -39,7 +39,7 @@ def summarise_gene_methylation(
 
 def to_heatmap_matrix(df, value_col):
     return (
-        df.pivot(index="gene", columns="sample", values=value_col)
+        df.pivot(index="gene", columns="sample_name", values=value_col)
         .fillna(0)
     )
 
