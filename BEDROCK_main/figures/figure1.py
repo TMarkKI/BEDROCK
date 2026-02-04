@@ -46,7 +46,7 @@ def figure_1b(df_depth_all, fai, thresholds, outdir):
     for t in thresholds:
         tmp = (
             df_depth_all[df_depth_all.Coverage_depth >= t]
-            .groupby(["Chromosome", "sample"])
+            .groupby(["Chromosome", "sample_name"])
             .size()
             .reset_index(name="covered")
             .merge(fai, on="Chromosome")
@@ -58,7 +58,7 @@ def figure_1b(df_depth_all, fai, thresholds, outdir):
     df = pd.concat(out)
 
     sample_palette = make_palette(
-        df["sample"].unique(),
+        df["sample_name"].unique(),
         palette=SAMPLE_PALETTE
     )
 
