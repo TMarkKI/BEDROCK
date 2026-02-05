@@ -65,7 +65,6 @@ def plot_base_composition(df, outdir):
         col="threshold",
         multiple="stack",
         element="bars",
-        height=3, #adjust if plots are too small; larger number = bigger
         discrete=True,
         palette=base_palette,
         legend=True
