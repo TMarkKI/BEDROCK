@@ -68,12 +68,16 @@ def main():
         outdir
     )
 
+    print(f"[INFO] Figure 1a produced")
+
     figure_1b(
         df_depth_all,
         fai,
         thresholds,
         outdir,
     )
+
+    print(f"[INFO] Figure 1b produced")
 
     # ---- FIGURE 2 ----
 
@@ -86,6 +90,8 @@ def main():
         outdir
     )
 
+    print(f"[INFO] Figure 2 produced")
+
     # ---- FIGURE 3A/B ----
     run_figure3(
         ref_fasta=args.ref,
@@ -93,6 +99,8 @@ def main():
         chr_map=chr_map,
         outdir=outdir,
     )
+
+    print(f"[INFO] Figure 3 produced")
 
     # ---- FIGURE 4&5 ----
     genes_pr = load_genes_as_pyranges(args.annotation)
@@ -102,12 +110,16 @@ def main():
         genes_pr, 
         outdir,
     )
+    
+    print(f"[INFO] Figure 4 produced")
 
     run_figure5(
         bed_all, 
         genes_pr, 
         outdir,
     )
+    
+    print(f"[INFO] Figure 5 produced")
 
     # ---- FIGURE 6 ----
 
@@ -130,6 +142,8 @@ def main():
         gene_positions,
         outdir,
     )
+
+    print(f"[INFO] Figure 6 produced")
 
 if __name__ == "__main__":
     main()
