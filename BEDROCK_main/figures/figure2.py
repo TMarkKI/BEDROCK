@@ -69,8 +69,10 @@ def plot_base_composition(df, outdir):
         palette=base_palette,
         legend=True
     )
-    g.set_xticklabels(rotation=45)
-    g.set_axis_labels("Chromosome", "Percentage of Bases Called")
+    
+    g.set_xlabels("Chromosome")
+    g.set_ylabels("Percentage of Bases Called")
+    g.set_title("Percentage Base Type Composition Across Each Chromosome")
     
     plt.tight_layout()
     g.savefig(f"{outdir}/figure2a.tiff", dpi=300)
