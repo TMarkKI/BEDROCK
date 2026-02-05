@@ -58,15 +58,17 @@ def plot_base_composition(df, outdir):
 
     g = sns.histplot(
         data=df,
+        kde=False,
         x="Chromosome",
-        y="percent",
         hue="base_call_type",
-        row="threshold",
-        col="sample_name",
+        weight="percent",
+        col="threshold",
         multiple="stack",
-        kind="bar",
-        height=4,
-        palette=base_palette
+        element="bars",
+        height=3, #adjust if plots are too small; larger number = bigger
+        discrete=True,
+        palette=base_palette,
+        legend=True
     )
     g.set_xticklabels(rotation=45)
     g.set_axis_labels("Chromosome", "Percentage of Bases Called")
