@@ -50,30 +50,34 @@ def plot_base_composition(df, outdir):
     )        
     
     base_palette = make_palette(
-        df["base_call_type"].unique(),
+        order,
         palette=BASE_CALL_PALETTE
     )
 
 
 
-    g = sns.histplot(
+    g = sns.displot(
         data=df,
-        kde=False,
         x="Chromosome",
         hue="base_call_type",
+        hue_order=order,
         weight="percent",
-        col="threshold",
+        row="threshold",
+        col="sample_name",
         multiple="stack",
         element="bars",
         discrete=True,
         palette=base_palette,
-        legend=True
+        legend=True,
+        discrete=True,
+        height=4,
+        aspect=1.3
     )
     
     g.set_xlabels("Chromosome")
     g.set_ylabels("Percentage of Bases Called")
-    g.set_title("Percentage Base Type Composition Across Each Chromosome")
+    g.set_titles("Percentage Base Type Composition Across Each Chromosome")
     
     plt.tight_layout()
-    g.savefig(f"{outdir}/figure2a.tiff", dpi=300)
+    g.savefig(f"{outdir}/figure2.tiff", dpi=300)
     plt.close()
