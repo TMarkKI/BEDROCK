@@ -90,12 +90,12 @@ def plot_base_composition(df, outdir):
             
             ax.bar(
                 pivot.index,
-                pivot[bc],
+                pivot[base],
                 bottom=bottom,
-                color=base_palette.get(bc),
-                label=bc
+                color=base_palette.get(base),
+                label=base
             )
-            bottom += pivot[bc].values
+            bottom += pivot[base].values
             
             
         ax.set_title(sample)
