@@ -48,36 +48,65 @@ def plot_base_composition(df, outdir):
         categories=order,
         ordered=True
     )        
+
+    samples = df["sample"].unique()
+    thresholds = df["threshold"].unique()
     
-    base_palette = make_palette(
-        order,
-        palette=BASE_CALL_PALETTE
+    base_palette = make_palette(order,palette=BASE_CALL_PALETTE)
+
+    fig, axes = plt.subplots(
+        nrows=len(samples),
+        ncols=1,
+        figsize=(6, 4 * len(samples)),
+        sharex=True
     )
 
 
+    if len(samples) == 1:
+        axes = [axes]
 
-    g = sns.displot(
-        data=df,
-        x="Chromosome",
-        hue="base_call_type",
-        hue_order=order,
-        weight="percent",
-        row="threshold",
-        col="sample_name",
-        multiple="stack",
-        element="bars",
-        discrete=True,
-        palette=base_palette,
-        legend=True,
-        discrete=True,
-        height=4,
-        aspect=1.3
+    for ax, sample in zip(axes, samples):
+        sdf = df[df["sample"] == sample]
+
+        bottom = pd.Series(0, index=thresholds)
+
+        for base in order:
+            bdf = (
+                sdf[sdf["base_call_type"] == base]
+                .set_index("threshold")
+                .reindex(thresholds, fill_value=0)
+            )
+
+            ax.bar(
+                thresholds,
+                bdf["percent"],
+                bottom=bottom,
+                label=base,
+                color=base_palette[base]
+            )
+
+            bottom += bdf["percent"]
+
+        ax.set_title(sample)
+        ax.set_ylabel("Percentage of Base Calls")
+        ax.set_ylim(0, 100)
+
+    axes[-1].set_xlabel("mod_score Threshold")
+
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(
+        handles,
+        labels,
+        title="base_call_type",
+        bbox_to_anchor=(1.02, 0.5),
+        loc="center left"
     )
-    
-    g.set_xlabels("Chromosome")
-    g.set_ylabels("Percentage of Bases Called")
-    g.set_titles("Percentage Base Type Composition Across Each Chromosome")
-    
+
+    fig.suptitle(
+        "Base Composition by Sample and Depth Threshold",
+        y=0.98
+    )
+
     plt.tight_layout()
     g.savefig(f"{outdir}/figure2.tiff", dpi=300)
     plt.close()
