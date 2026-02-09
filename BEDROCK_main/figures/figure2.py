@@ -49,7 +49,7 @@ def plot_base_composition(df, outdir):
         ordered=True
     )        
 
-    samples = df["sample"].unique()
+    samples = df["sample_name"].unique()
     thresholds = df["threshold"].unique()
     
     base_palette = make_palette(order,palette=BASE_CALL_PALETTE)
@@ -66,7 +66,7 @@ def plot_base_composition(df, outdir):
         axes = [axes]
 
     for ax, sample in zip(axes, samples):
-        sdf = df[df["sample"] == sample]
+        sdf = df[df["sample_name"] == sample]
         
         pivot = (
             sdf
