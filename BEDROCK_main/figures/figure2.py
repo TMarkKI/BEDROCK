@@ -2,6 +2,7 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
 
 from utils import make_palette
 from config import BASE_CALL_PALETTE
