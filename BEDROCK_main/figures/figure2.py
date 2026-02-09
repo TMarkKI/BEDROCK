@@ -67,46 +67,51 @@ def plot_base_composition(df, outdir):
 
     for ax, sample in zip(axes, samples):
         sdf = df[df["sample"] == sample]
-
-        bottom = pd.Series(0, index=thresholds)
+        
+        pivot = (
+            sdf
+            .pivot_table(
+                index="threshold",
+                columns="base_call_type",
+                values="percent",
+                aggfunc="sum",
+                fill_value=0
+            )
+            .reindex(thresholds)
+        )
+        
+        bottom = np.zeros(len(pivot))
 
         for base in order:
-            bdf = (
-                sdf[sdf["base_call_type"] == base]
-                .set_index("threshold")
-                .reindex(thresholds, fill_value=0)
-            )
+            if base not in pivot.columns:
+                continue
 
+            
             ax.bar(
-                thresholds,
-                bdf["percent"],
+                pivot.index,
+                pivot[bc],
                 bottom=bottom,
-                label=base,
-                color=base_palette[base]
+                color=base_palette.get(bc),
+                label=bc
             )
-
-            bottom += bdf["percent"]
-
+            bottom += pivot[bc].values
+            
+            
         ax.set_title(sample)
-        ax.set_ylabel("Percentage of Base Calls")
+        ax.set_ylabel("Percentage of Base-Type Called")
         ax.set_ylim(0, 100)
 
-    axes[-1].set_xlabel("mod_score Threshold")
+    axes[-1].set_xlabel("Depth Threshold")
 
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(
         handles,
         labels,
-        title="base_call_type",
+        title="Type of Base",
         bbox_to_anchor=(1.02, 0.5),
         loc="center left"
     )
 
-    fig.suptitle(
-        "Base Composition by Sample and Depth Threshold",
-        y=0.98
-    )
-
     plt.tight_layout()
-    g.savefig(f"{outdir}/figure2.tiff", dpi=300)
+    fig.savefig(f"{outdir}/figure2.tiff", dpi=300)
     plt.close()
