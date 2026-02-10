@@ -48,7 +48,7 @@ def summarize_modifications(
 
     summary = (
         df.groupby(
-            ["Chromosome", "start", "end", "strand", "sample_name"]
+            ["Chromosome", "Start", "End", "strand", "sample_name"]
         )
         .size()
         .reset_index(name="mod")
