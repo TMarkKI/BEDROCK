@@ -1,8 +1,6 @@
 ##bases composition (failed/mod/canonical/variant)
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
-import numpy as np
 
 from utils import make_palette
 from config import BASE_CALL_PALETTE
@@ -74,62 +72,25 @@ def plot_base_composition(df, outdir):
 
     print(df.groupby(["sample_name", "threshold"])["base_call_type"].nunique())
 
-    for ax, sample in zip(axes, samples):
-        sdf = df[df["sample_name"] == sample]
-        
-        pivot = (
-            sdf
-            .pivot_table(
-                index="threshold",
-                columns="base_call_type",
-                values="percent",
-                aggfunc="sum",
-                fill_value=0
-            )
-            .reindex(thresholds)
-        )
-        x = np.arange(len(pivot))        
-        bottom = np.zeros(len(pivot))
-
-        for base in order:
-            if base not in pivot.columns:
-                continue
-
-            ax.bar(
-                x,
-                pivot[base].values,
-                bottom=bottom,
-                color=base_palette.get(base),
-                label=base
-            )
-
-            bottom += pivot[base].values
-            
-        ax.set_xticks(x)
-        ax.set_xticklabels(pivot.index)
-        ax.set_title(sample)
-        ax.set_ylabel("Percentage of Base-Type Called")
-        ax.set_ylim(0, 100)
-
-    axes[-1].set_xlabel("Depth Threshold")
-
-    handles = []
-    labels = []
-
-    for base in order:
-        handles.append(
-        plt.Rectangle((0, 0), 1, 1, color=base_palette.get(base))
-        )
-        labels.append(base)
-    
-    fig.legend(
-        handles,
-        labels,
-        title="Type of Base",
-        bbox_to_anchor=(1.02, 0.5),
-        loc="center left"
+    g = sns.catplot(
+        data=df,
+        kind="bar",
+        x="threshold",
+        y="percent",
+        hue="base_call_type",
+        col="sample_name",
+        dodge=False,
+        order=thresholds,
+        hue_order=order,
+        palette=base_palette,
+        height=4,
+        aspect=1
     )
+    
+    g.set_axis_labels("Depth Threshold", "Percentage of Base Calls")
+    g.set_titles("{col_name}")
+    g.legend.set_title("Type of Base")
 
     plt.tight_layout()
-    fig.savefig(f"{outdir}/figure2.tiff", dpi=300)
+    g.savefig(f"{outdir}/figure2.tiff", dpi=300)
     plt.close()
