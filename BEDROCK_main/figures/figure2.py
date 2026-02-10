@@ -48,7 +48,13 @@ def plot_base_composition(df, outdir):
         df["base_call_type"],
         categories=order,
         ordered=True
-    )        
+    )
+
+    df = (df
+          .groupby(["sample_name", "threshold", "base_call_type"], as_index=False)
+          .agg(percent=("percent", "sum"))
+         )
+
 
     samples = df["sample_name"].unique()
     thresholds = df["threshold"].unique()
@@ -65,6 +71,8 @@ def plot_base_composition(df, outdir):
 
     if len(samples) == 1:
         axes = [axes]
+
+    print(df.groupby(["sample_name", "threshold"])["base_call_type"].nunique())
 
     for ax, sample in zip(axes, samples):
         sdf = df[df["sample_name"] == sample]
