@@ -1,5 +1,5 @@
 from figures.figure3ab import window_base_counts, plot_window_counts
-from figures.figure3cd import bed_to_range, summarize_modifications, plot_mod_windows
+from figures.figure3cd import bed_to_ranges, summarize_modifications, plot_mod_windows
 
 
 def run_figure3(ref_fasta, bed_all, chr_map, outdir):
