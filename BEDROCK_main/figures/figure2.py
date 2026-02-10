@@ -80,31 +80,40 @@ def plot_base_composition(df, outdir):
             )
             .reindex(thresholds)
         )
-        
+        x = np.arange(len(pivot))        
         bottom = np.zeros(len(pivot))
 
         for base in order:
             if base not in pivot.columns:
                 continue
 
-            
             ax.bar(
-                pivot.index,
-                pivot[base],
+                x,
+                pivot[base].values,
                 bottom=bottom,
                 color=base_palette.get(base),
                 label=base
             )
+
             bottom += pivot[base].values
             
-            
+        ax.set_xticks(x)
+        ax.set_xticklabels(pivot.index)
         ax.set_title(sample)
         ax.set_ylabel("Percentage of Base-Type Called")
         ax.set_ylim(0, 100)
 
     axes[-1].set_xlabel("Depth Threshold")
 
-    handles, labels = axes[0].get_legend_handles_labels()
+    handles = []
+    labels = []
+
+    for base in order:
+        handles.append(
+        plt.Rectangle((0, 0), 1, 1, color=base_palette.get(base))
+        )
+        labels.append(base)
+    
     fig.legend(
         handles,
         labels,
