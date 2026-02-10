@@ -89,7 +89,11 @@ def plot_base_composition(df, outdir):
     
     g.set_axis_labels("Depth Threshold", "Percentage of Base Calls")
     g.set_titles("{col_name}")
+    
     g.legend.set_title("Type of Base")
+    g.legend.set_bbox_to_anchor((1, 1))
+    g.legend.borderaxespad=0
+    g.legend.set_loc("center left")
 
     plt.tight_layout()
     g.savefig(f"{outdir}/figure2.tiff", dpi=300)
