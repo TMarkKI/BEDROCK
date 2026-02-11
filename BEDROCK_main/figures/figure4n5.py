@@ -5,14 +5,14 @@ import matplotlib.pyplot as plt
 
 
 def assign_genes(df_bed, genes_pr):
+
     mods = pr.PyRanges(
-        chromosomes=df_bed["Chromosome"],
-        starts=df_bed["Start_chrom_pos"],
-        ends=df_bed["End_chrom_pos"],
-        sample=df_bed["sample_name"],
-        mod_code=df_bed["mod_code"],
-        mod_score=df_bed["mod_score"],
-        percent_mod=df_bed["percent_mod"],
+        df_bed.rename(
+            columns={
+                "Start_chrom_pos": "Start",
+                "End_chrom_pos": "End",
+            }
+        )
     )
 
     overlaps = mods.join(genes_pr)
