@@ -87,7 +87,7 @@ def plot_mod_windows(df, outpath, ylab):
 
     g.map_dataframe(
         sns.barplot,
-        x="start",
+        x="Start",
         y="mod",
         hue="strand",
         palette=palette,
