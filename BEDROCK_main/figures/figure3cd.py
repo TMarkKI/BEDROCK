@@ -95,11 +95,17 @@ def plot_mod_windows(df, outpath, ylab):
     )
 
     g.add_legend()
-    g.legend.set_bbox_to_anchor((1, 1))
-    g.legend.set_loc("center left")
-    g.legend.borderaxespad=0
-    g.set_axis_labels("Genomic position (bp)", ylab)
-
+    leg = g.legend
+    leg.remove()
+    g.fig.legend(
+        handles=leg.legendHandles,
+        labels=[t.get_text() for t in leg.texts],
+        title=leg.get_title().get_text(),
+        bbox_to_anchor=(1,1),
+        loc="center left",
+        borderaxesspad=0
+    )
+    
     for ax in g.axes.flatten():
         ax.tick_params(axis="x", labelbottom=False)
 
