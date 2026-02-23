@@ -95,20 +95,22 @@ def plot_mod_windows(df, outpath, ylab):
     )
 
     g.add_legend()
-    leg = g.legend
-    leg.remove()
+    handles, labels = g.axes[0, 0].get_legend_handles_labels()
+    g.legend.remove()
+
+    plt.tight_layout()
+    
     g.fig.legend(
-        handles=leg.legendHandles,
-        labels=[t.get_text() for t in leg.texts],
-        title=leg.get_title().get_text(),
-        bbox_to_anchor=(1,1),
+        handles=handles,
+        labels=labels,
+        title="Strand",
+        bbox_to_anchor=(1.02, 0.5),
         loc="center left",
-        borderaxesspad=0
+        borderaxespad=0
     )
     
     for ax in g.axes.flatten():
         ax.tick_params(axis="x", labelbottom=False)
 
-    plt.tight_layout()
     plt.savefig(outpath, dpi=300)
     plt.close()
