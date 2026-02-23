@@ -22,8 +22,6 @@ chrom_map = {
     "Pf_M76611": "MIT",
 }
 
-genes_df["Chromosome"] = genes_df["Chromosome"].map(chrom_map)
-
 def assign_genes(df_bed, genes_pr):
 
     mods = pr.PyRanges(
@@ -107,7 +105,14 @@ def plot_heatmap(
     plt.savefig(outfile, dpi=300)
     plt.close()
 
+def remap_chromosomes(genes_pr, chrom_map):
+    df = genes_pr.df.copy()
+    df["Chromosome"] = df["Chromosome"].replace(chrom_map)
+    return pr.PyRanges(df)
+
 def run_figure4(df_bed, genes_pr, outdir):
+    genes_pr = remap_chromosomes(genes_pr, chrom_map)
+    
     df_bed = df_bed[df_bed["mod_score"] >= 50] #threshold for depth
     df = assign_genes(df_bed, genes_pr)
     df = df.dropna(subset=["gene"])
