@@ -3,21 +3,56 @@ import pyranges as pr
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+chrom_map = {
+    "Pf3D7_01_v3": "1",
+    "Pf3D7_02_v3": "2",
+    "Pf3D7_03_v3": "3",
+    "Pf3D7_04_v3": "4",
+    "Pf3D7_05_v3": "5",
+    "Pf3D7_06_v3": "6",
+    "Pf3D7_07_v3": "7",
+    "Pf3D7_08_v3": "8",
+    "Pf3D7_09_v3": "9",
+    "Pf3D7_10_v3": "10",
+    "Pf3D7_11_v3": "11",
+    "Pf3D7_12_v3": "12",
+    "Pf3D7_13_v3": "13",
+    "Pf3D7_14_v3": "14",
+    "Pf3D7_API_v3": "API",
+    "Pf_M76611": "MIT",
+}
+
+genes_df["Chromosome"] = genes_df["Chromosome"].map(chrom_map)
 
 def assign_genes(df_bed, genes_pr):
 
     mods = pr.PyRanges(
-        df_bed.rename(
-            columns={
-                "Start_chrom_pos": "Start",
-                "End_chrom_pos": "End",
-            }
-        )
+        chromosomes=df_bed["Chromosome"],
+        starts=df_bed["Start_chrom_pos"],
+        ends=df_bed["End_chrom_pos"],
     )
 
     overlaps = mods.join(genes_pr)
+    odf = overlaps.df
 
-    return overlaps.df.rename(columns={"Name": "gene"})
+    if "Name" in odf.columns:
+        gene_col = "Name"
+    elif "gene_id" in odf.columns:
+        gene_col = "gene_id"
+    elif "ID" in odf.columns:
+        gene_col = "ID"
+    else:
+        raise RuntimeError(
+            "No gene identifier column found in GFF (expected Name, gene_id, or ID)"
+        )
+
+    df_bed = df_bed.copy()
+    df_bed["gene"] = pd.NA
+
+    df_bed.loc[odf.index, "gene"] = odf[gene_col].values
+
+    return df_bed
+
 
 def summarise_gene_methylation(
     df,
