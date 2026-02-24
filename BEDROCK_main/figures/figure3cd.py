@@ -77,7 +77,7 @@ def plot_mod_windows(df, outpath, ylab):
         ordered=True
     )
     
-    df["signed_mod"] = df["Modified Base Count"]
+    df["signed_mod"] = df["mod"]
     df.loc[df["strand"] == "-", "signed_mod"] *= -1
 
     palette = make_palette(df["strand"].unique(), palette="Set1")
