@@ -1,5 +1,6 @@
 ##genes and methylation
 import pyranges as pr
+import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
