@@ -97,6 +97,7 @@ def plot_mod_windows(df, outpath, ylab):
         hue="strand",
         palette=palette,
         dodge=False,
+        native_scale=True,
     )
 
     g.set_titles(col_template="{col_name}", row_template="")
