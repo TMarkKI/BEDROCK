@@ -75,6 +75,10 @@ def plot_mod_windows(df, outpath, ylab):
         ordered=True
     )
 
+    df = df.copy()
+    df["signed_mod"] = df["Modified Base Count"]
+    df.loc[df["strand"] == "-", "signed_mod"] *= -1
+
     palette = make_palette(df["strand"].unique(), palette="Set1")
 
     g = sns.FacetGrid(
@@ -87,19 +91,26 @@ def plot_mod_windows(df, outpath, ylab):
 
     g.map_dataframe(
         sns.barplot,
-        x="Start",
-        y="mod",
+        x="Genomic Position(kb)",
+        y="Modified Base Count",
         hue="strand",
         palette=palette,
         dodge=False,
     )
 
-    g.add_legend()
-    handles, labels = g.axes[0, 0].get_legend_handles_labels()
-    g.legend.remove()
-
-    plt.tight_layout()
+    g.set_titles(col_template="{col_name}", row_template="")
     
+    for ax, sample in zip(g.axes[:, -1], g.row_names):
+        ax.text(
+            1.02, 0.5,
+            sample,
+            transform=ax.transAxes,
+            rotation=-90,
+            va="center",
+            ha="left",
+            fontsize=10
+        )
+
     g.fig.legend(
         handles=handles,
         labels=labels,
@@ -110,7 +121,25 @@ def plot_mod_windows(df, outpath, ylab):
     )
     
     for ax in g.axes.flatten():
-        ax.tick_params(axis="x", labelbottom=False)
+        ax.axhline(0, color="black", linewidth=0.8)
+        ax.set_ylabel(ylab)
+        ax.text(
+            0.99, 0.75, "+",
+            transform=ax.transAxes,
+            ha="right",
+            va="center",
+            fontsize=12,
+            alpha=0.7
+        )
+        ax.text(
+            0.99, 0.25, "−",
+            transform=ax.transAxes,
+            ha="right",
+            va="center",
+            fontsize=12,
+            alpha=0.7
+        )
 
+    plt.tight_layout()
     plt.savefig(outpath, dpi=300)
     plt.close()
