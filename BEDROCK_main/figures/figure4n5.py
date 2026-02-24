@@ -41,15 +41,21 @@ def assign_genes(df_bed, genes_pr):
     elif "ID" in odf.columns:
         gene_col = "ID"
     else:
-        raise RuntimeError(
-            "No gene identifier column found in GFF (expected Name, gene_id, or ID)"
-        )
+        raise RuntimeError("No gene identifier column found in GFF (expected Name, gene_id, or ID)")
 
-    df_bed = df_bed.copy()
-    df_bed["gene"] = pd.NA
+    odf = odf[
+        ["Chromosome", "Start", "End", gene_col]
+    ].rename(columns={gene_col: "gene"})
 
-    df_bed.loc[odf.index, "gene"] = odf[gene_col].values
+    df_bed = df_bed.merge(
+        odf,
+        left_on=["Chromosome", "Start_chrom_pos", "End_chrom_pos"],
+        right_on=["Chromosome", "Start", "End"],
+        how="left",
+    )
 
+    df_bed.drop(columns=["Start", "End"], inplace=True)
+    
     return df_bed
 
 
