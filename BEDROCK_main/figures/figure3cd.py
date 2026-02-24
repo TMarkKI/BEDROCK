@@ -94,7 +94,6 @@ def plot_mod_windows(df, outpath, ylab):
         hue="strand",
         palette=palette,
         dodge=False,
-        native_scale=True,
     )
 
     g.set_titles(col_template="Chromosome {col_name}", row_template="")
@@ -135,6 +134,7 @@ def plot_mod_windows(df, outpath, ylab):
 
         ax.tick_params(axis="x", labelbottom=False)
 
+    plt.yscale('log')
     plt.tight_layout()
     plt.savefig(outpath, dpi=300)
     plt.close()
