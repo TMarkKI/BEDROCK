@@ -76,9 +76,6 @@ def plot_mod_windows(df, outpath, ylab):
         categories=chrom_order,
         ordered=True
     )
-    
-    df["signed_mod"] = df["mod"]
-    df.loc[df["strand"] == "-", "signed_mod"] *= -1
 
     palette = make_palette(df["strand"].unique(), palette="Set1")
 
@@ -93,14 +90,14 @@ def plot_mod_windows(df, outpath, ylab):
     g.map_dataframe(
         sns.barplot,
         x="Start",
-        y="signed_mod",
+        y="mod",
         hue="strand",
         palette=palette,
         dodge=False,
         native_scale=True,
     )
 
-    g.set_titles(col_template="{col_name}", row_template="")
+    g.set_titles(col_template="Chromosome {col_name}", row_template="")
 
 
     for ax, sample in zip(g.axes[:, -1], g.row_names):
@@ -117,6 +114,7 @@ def plot_mod_windows(df, outpath, ylab):
     for ax in g.axes.flatten():
         ax.axhline(0, color="black", linewidth=0.8)
         ax.set_ylabel(ylab)
+        ax.set_xlabel("Modified Base Count")
 
         ax.text(
             0.99, 0.75, "+",
