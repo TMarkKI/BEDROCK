@@ -107,7 +107,9 @@ def plot_heatmap(
 
 def remap_chromosomes(genes_pr, chrom_map):
     df = genes_pr.df.copy()
-    df["Chromosome"] = df["Chromosome"].replace(chrom_map)
+
+    df["Chromosome"] = df["Chromosome"].astype(str).replace(chrom_map)
+
     return pr.PyRanges(df)
 
 def run_figure4(df_bed, genes_pr, outdir):
