@@ -60,6 +60,8 @@ def summarize_modifications(
 
 
 def plot_mod_windows(df, outpath, ylab):
+
+    df = df.copy()
     
     df["strand"] = pd.Categorical(
         df["strand"],
@@ -74,8 +76,7 @@ def plot_mod_windows(df, outpath, ylab):
         categories=chrom_order,
         ordered=True
     )
-
-    df = df.copy()
+    
     df["signed_mod"] = df["Modified Base Count"]
     df.loc[df["strand"] == "-", "signed_mod"] *= -1
 
@@ -91,15 +92,16 @@ def plot_mod_windows(df, outpath, ylab):
 
     g.map_dataframe(
         sns.barplot,
-        x="Genomic Position(kb)",
-        y="Modified Base Count",
+        x="Start",
+        y="signed_mod",
         hue="strand",
         palette=palette,
         dodge=False,
     )
 
     g.set_titles(col_template="{col_name}", row_template="")
-    
+
+
     for ax, sample in zip(g.axes[:, -1], g.row_names):
         ax.text(
             1.02, 0.5,
@@ -111,18 +113,10 @@ def plot_mod_windows(df, outpath, ylab):
             fontsize=10
         )
 
-    g.fig.legend(
-        handles=handles,
-        labels=labels,
-        title="Strand",
-        bbox_to_anchor=(1.02, 0.5),
-        loc="center left",
-        borderaxespad=0
-    )
-    
     for ax in g.axes.flatten():
         ax.axhline(0, color="black", linewidth=0.8)
         ax.set_ylabel(ylab)
+
         ax.text(
             0.99, 0.75, "+",
             transform=ax.transAxes,
@@ -139,6 +133,8 @@ def plot_mod_windows(df, outpath, ylab):
             fontsize=12,
             alpha=0.7
         )
+
+        ax.tick_params(axis="x", labelbottom=False)
 
     plt.tight_layout()
     plt.savefig(outpath, dpi=300)
