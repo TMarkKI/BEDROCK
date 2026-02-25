@@ -78,7 +78,7 @@ def plot_mod_windows(df, outpath, ylab):
 
             ax.bar(
                 sub["Start"],
-                sub["mod",
+                sub["mod"],
                 width=WINDOW_SIZE,
                 align="edge",
                 color=color
