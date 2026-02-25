@@ -18,10 +18,12 @@ def make_windows(df_windows):
     )
 
 def bed_to_ranges(df_bed):
+    df = df_bed.copy()
     return pr.PyRanges(
         df_bed.rename(columns={
             "Start_chrom_pos": "Start",
-            "End_chrom_pos": "End"
+            "End_chrom_pos": "End",
+            "sample_name": "sample"
         })
     )
 
