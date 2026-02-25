@@ -94,7 +94,12 @@ def plot_mod_windows(df, outpath, ylab):
         hue="strand",
         palette=palette,
         dodge=False,
+        estimator=None,
     )
+
+    ymax = df["mod"].abs().max()
+    for ax in g.axes.flatten():
+        ax.set_ylim(-ymax * 1.05, ymax * 1.05)
 
     g.set_titles(col_template="Chromosome {col_name}", row_template="")
 
@@ -113,7 +118,7 @@ def plot_mod_windows(df, outpath, ylab):
     for ax in g.axes.flatten():
         ax.axhline(0, color="black", linewidth=0.8)
         ax.set_ylabel(ylab)
-        ax.set_xlabel("Modified Base Count")
+        ax.set_xlabel("Genomic position (bp)")
 
         ax.text(
             0.99, 0.75, "+",
@@ -134,7 +139,6 @@ def plot_mod_windows(df, outpath, ylab):
 
         ax.tick_params(axis="x", labelbottom=False)
 
-    plt.yscale('log')
     plt.tight_layout()
     plt.savefig(outpath, dpi=300)
     plt.close()
