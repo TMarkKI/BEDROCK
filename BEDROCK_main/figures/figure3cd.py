@@ -9,10 +9,11 @@ from utils import make_palette
 WINDOW_SIZE = 1000
 
 def make_windows(df_windows):
+    assert {"Chromosome", "start", "end"}.issubset(df_windows.columns)
     return pr.PyRanges(
         df_windows.rename(columns={
-            "Start": "Start",
-            "End": "End"
+            "start": "Start",
+            "end": "End"
         })
     )
 
