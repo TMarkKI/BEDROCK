@@ -83,6 +83,11 @@ def to_heatmap_matrix(df, value_col):
         .fillna(0)
     )
 
+def select_top_500_genes(matrix, n=500):
+    variances = matrix.var(axis=1)
+    top_genes = variances.sort_values(ascending=False).head(n).index
+    return matrix.loc[top_genes]
+
 def plot_heatmap(
     matrix,
     outfile,
@@ -107,6 +112,8 @@ def plot_heatmap(
         vmax=vmax,
         metric="euclidean",
         method="complete",
+        row_cluster=False,
+        column_cluster=True,
         yticklabels=False,
     )
     plt.savefig(outfile, dpi=300)
@@ -140,8 +147,11 @@ def run_figure4(df_bed, genes_pr, outdir):
     for label, mods, stat, scale in configs:
         summary = summarise_gene_methylation(df, mods, stat)
         mat = to_heatmap_matrix(summary, f"{stat}_methylation")
+
+        top_500 = select_top_500_genes(mat, n=500)
+
         plot_heatmap(
-            mat,
+            top_500,
             outdir / f"figure{label}.tiff",
             scale=scale,
             cmap="vlag",
