@@ -62,82 +62,51 @@ def summarize_modifications(
 def plot_mod_windows(df, outpath, ylab):
 
     df = df.copy()
-    
-    df["strand"] = pd.Categorical(
-        df["strand"],
-        categories=["+", "-"],
-        ordered=True
-    )
+
+    df["strand"] = pd.Categorical(df["strand"], ["+", "-"], ordered=True)
 
     chrom_order = list(dict.fromkeys(df["Chromosome"]))
+    df["Chromosome"] = pd.Categorical(df["Chromosome"], chrom_order, ordered=True)
 
-    df["Chromosome"] = pd.Categorical(
-        df["Chromosome"],
-        categories=chrom_order,
-        ordered=True
-    )
-
-    palette = make_palette(df["strand"].unique(), palette="Set1")
+    palette = make_palette(["+", "-"], palette="Set1")
 
     g = sns.FacetGrid(
         df,
         row="sample_name",
         col="Chromosome",
         sharex=False,
+        sharey=True,
         height=3,
+        margin_titles=False,
     )
 
-    g.map_dataframe(
-        sns.barplot,
-        x="Start",
-        y="mod",
-        hue="strand",
-        palette=palette,
-        dodge=False,
-        estimator=None,
-    )
+    def draw_bars(data, **kwargs):
+        ax = plt.gca()
+        for strand, sub in data.groupby("strand"):
+            ax.bar(
+                sub["Start"],
+                sub["mod"],
+                width=WINDOW_SIZE,
+                color=palette[strand],
+                align="edge",
+            )
+
+    g.map_dataframe(draw_bars)
 
     ymax = df["mod"].abs().max()
     for ax in g.axes.flatten():
         ax.set_ylim(-ymax * 1.05, ymax * 1.05)
-
-    g.set_titles(col_template="Chromosome {col_name}", row_template="")
-
-
-    for ax, sample in zip(g.axes[:, -1], g.row_names):
-        ax.text(
-            1.02, 0.5,
-            sample,
-            transform=ax.transAxes,
-            rotation=-90,
-            va="center",
-            ha="left",
-            fontsize=10
-        )
-
-    for ax in g.axes.flatten():
         ax.axhline(0, color="black", linewidth=0.8)
+        ax.tick_params(axis="x", labelbottom=False)
         ax.set_ylabel(ylab)
         ax.set_xlabel("Genomic position (bp)")
 
-        ax.text(
-            0.99, 0.75, "+",
-            transform=ax.transAxes,
-            ha="right",
-            va="center",
-            fontsize=12,
-            alpha=0.7
-        )
-        ax.text(
-            0.99, 0.25, "−",
-            transform=ax.transAxes,
-            ha="right",
-            va="center",
-            fontsize=12,
-            alpha=0.7
-        )
+        ax.text(0.99, 0.75, "+", transform=ax.transAxes,
+                ha="right", va="center", alpha=0.7)
+        ax.text(0.99, 0.25, "−", transform=ax.transAxes,
+                ha="right", va="center", alpha=0.7)
 
-        ax.tick_params(axis="x", labelbottom=False)
+    g.set_titles(col_template="Chromosome {col_name}", row_template="")
 
     plt.tight_layout()
     plt.savefig(outpath, dpi=300)
