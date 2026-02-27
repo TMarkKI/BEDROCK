@@ -46,14 +46,14 @@ def make_1kb_windows(chrom_sizes, window_size = 1000):
 def bed_to_ranges(df_bed):
     df = df_bed.rename(columns={
         "Start_chrom_pos": "Start",
-        "End_chrom_pos": "End",
-        "sample_name": "sample"
+        "End_chrom_pos": "End"
     })
     
     return pr.PyRanges(df)
 
 
 def summarize_modifications(bed_df, window_pr, mod_codes):
+    bed_df = bed_df.rename(columns={"sample_name": "sample"})
 
     filtered = bed_df[(bed_df["mod_code"].isin(mod_codes)) & (bed_df["mod"] == 1)].copy()
     bed = bed_to_ranges(filtered)
