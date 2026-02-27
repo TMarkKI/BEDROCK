@@ -27,7 +27,7 @@ def make_1kb_windows(chrom_sizes, window_size = 1000):
         chrom = row["Chromosome"]
         length = row["chrom_length"]
 
-        starts = np.arrange(0, length, window_size)
+        starts = np.arange(0, length, window_size)
         ends = starts + window_size
         ends[ends > length] = length
 
