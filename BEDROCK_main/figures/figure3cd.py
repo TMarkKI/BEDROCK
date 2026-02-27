@@ -46,7 +46,8 @@ def make_1kb_windows(chrom_sizes, window_size = 1000):
 def bed_to_ranges(df_bed):
     df = df_bed.rename(columns={
         "Start_chrom_pos": "Start",
-        "End_chrom_pos": "End"
+        "End_chrom_pos": "End",
+        "sample_name": "sample"
     })
     
     return pr.PyRanges(df)
