@@ -41,7 +41,7 @@ def make_1kb_windows(chrom_sizes, window_size = 1000):
 
     windows_df = pd.concat(windows, ignore_index=True)
 
-    return pr.Pyranges(windows_df)
+    return pr.PyRanges(windows_df)
 
 def bed_to_ranges(df_bed):
     df = df_bed.rename(columns={
