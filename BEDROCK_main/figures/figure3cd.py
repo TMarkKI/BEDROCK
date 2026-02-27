@@ -56,7 +56,7 @@ def summarize_modifications(bed_df, window_pr, mod_codes):
 
     filtered = bed_df[(bed_df["mod_code"].isin(mod_codes)) & (bed_df["mod"] == 1)].copy()
     bed = bed_to_ranges(filtered)
-    overlaps = bed.join(windows_pr)
+    overlaps = bed.join(window_pr)
     df = overlaps.df
 
     summary = (
