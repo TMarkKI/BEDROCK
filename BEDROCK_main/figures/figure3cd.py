@@ -71,6 +71,9 @@ def summarize_modifications(bed_df, window_pr, mod_codes):
             "End_b": "window_end"
         })
     )
+
+    summary.loc[summary["strand"] == "-", "mod_count"] *= -1
+
     
     all_windows = window_pr.df.rename(
         columns={"Start": "window_start", "End": "window_end"}
@@ -99,9 +102,6 @@ def summarize_modifications(bed_df, window_pr, mod_codes):
         how="left"
     )
     mod_count_summary_full["mod_count"] = mod_count_summary_full["mod_count"].fillna(0)
-
-    mod_count_summary_full.loc[mod_count_summary_full["strand"] == "-", "mod_count"] *= -1
-
     
     return mod_count_summary_full
     
