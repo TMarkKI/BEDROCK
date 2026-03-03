@@ -138,7 +138,7 @@ def plot_mod_windows(df, outpath, ylab):
         ordered=True
     )
 
-    df["sample"] = pd.Catergorical(
+    df["sample"] = pd.Categorical(
         df["sample"],
         categories=sorted(df["sample"].unique()),
         ordered=True
