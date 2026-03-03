@@ -53,33 +53,43 @@ def bed_to_ranges(df_bed):
 
 
 def summarize_modifications(bed_df, window_pr, mod_codes):
-    bed_df = bed_df.rename(columns={"sample_name": "sample"})
+    bed_df = bed_df.rename(columns={"sample_name": "sample"}).copy()
+
+    bed_df["sample"] = bed_df["sample"].astype(str).str.strip()
+    bed_df["strand"] = bed_df["strand"].astype(str).str.strip()
+    bed_df["Chromosome"] = bed_df["Chromosome"].astype(str).str.strip()
 
     filtered = bed_df[(bed_df["mod_code"].isin(mod_codes)) & (bed_df["mod"] == 1)].copy()
+    if filtered.empty:
+        raise ValueError("No modifications found after filtering.")
+    
     bed = bed_to_ranges(filtered)
     overlaps = bed.join(window_pr)
     df = overlaps.df
 
+    df["sample"] = df["sample"].astype(str).str.strip()
+    df["strand"] = df["strand"].astype(str).str.strip()
+    df["Chromosome"] = df["Chromosome"].astype(str).str.strip()
+
     summary = (
         df.groupby(
-            ["Chromosome", "Start_b", "End_b", "strand", "sample"]
+            ["Chromosome", "Start_b", "End_b", "strand", "sample"], as_index=False
         )
         .size()
-        .reset_index(name="mod_count")
         .rename(columns={
+            "size": "mod_count",
             "Start_b": "window_start",
             "End_b": "window_end"
         })
     )
 
-    summary.loc[summary["strand"] == "-", "mod_count"] *= -1
+    strand_map = {"+": 1, "-": -1}
+    summary["mod_count"] = (summary["mod_count"] * summary["strand"].map(strand_map))
 
-    
-    all_windows = window_pr.df.rename(
-        columns={"Start": "window_start", "End": "window_end"}
-        )
+    all_windows = (window_pr.df.rename(columns={"Start": "window_start", "End": "window_end"}).copy())
+    all_windows["Chromosome"] = all_windows["Chromosome"].astype(str)
 
-    samples = bed_df["sample"].unique()
+    samples = filtered["sample"].unique()
     strands = ["+", "-"]
 
     template = (
@@ -96,14 +106,22 @@ def summarize_modifications(bed_df, window_pr, mod_codes):
         .drop("key", axis=1)
     )
 
-    mod_count_summary_full = template.merge(
+    template["sample"] = template["sample"].astype(str)
+    template["strand"] = template["strand"].astype(str)
+    template["Chromosome"] = template["Chromosome"].astype(str)
+
+    summary["sample"] = summary["sample"].astype(str)
+    summary["strand"] = summary["strand"].astype(str)
+    summary["Chromosome"] = summary["Chromosome"].astype(str)
+
+    merged = template.merge(
         summary,
         on=["Chromosome", "window_start", "window_end", "strand", "sample"],
         how="left"
     )
-    mod_count_summary_full["mod_count"] = mod_count_summary_full["mod_count"].fillna(0)
+    merged["mod_count"] = merged["mod_count"].fillna(0)
     
-    return mod_count_summary_full
+    return merged
     
     
 def plot_mod_windows(df, outpath, ylab):
@@ -117,6 +135,12 @@ def plot_mod_windows(df, outpath, ylab):
     df["Chromosome"] = pd.Categorical(
         df["Chromosome"],
         categories=chrom_order,
+        ordered=True
+    )
+
+    df["sample"] = pd.Catergorical(
+        df["sample"],
+        categories=sorted(df["sample"].unique()),
         ordered=True
     )
 
@@ -134,8 +158,6 @@ def plot_mod_windows(df, outpath, ylab):
 
         for strand in ["+", "-"]:
             sub = data[data["strand"] == strand]
-            if sub.empty:
-                continue
             color = "red" if strand == "+" else "blue"
 
             ax.bar(
