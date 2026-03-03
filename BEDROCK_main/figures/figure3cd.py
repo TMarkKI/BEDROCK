@@ -132,8 +132,10 @@ def plot_mod_windows(df, outpath, ylab):
     def draw(data, **kwargs):
         ax = plt.gca()
 
-        for strand, sub in data.groupby("strand"):
-
+        for strand in ["+", "-"]:
+            sub = data[data["strand"] == strand]
+            if sub.empty:
+                continue
             color = "red" if strand == "+" else "blue"
 
             ax.bar(
