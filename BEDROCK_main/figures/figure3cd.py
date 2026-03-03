@@ -92,17 +92,12 @@ def summarize_modifications(bed_df, window_pr, mod_codes):
     samples = filtered["sample"].unique()
     strands = ["+", "-"]
 
-    template = (
-        all_windows
-        .assign(key=1)
-        .merge(
-            pd.DataFrame(
-                [(s, st) for s in samples for st in strands],
-                columns=["sample", "strand"]
-                ).assign(dummy=1),
-                on="dummy"
-        )
-        .drop("key", axis=1)
+    template = all_windows.merge(
+            pd.MultiIndex.from_product(
+                [sample, strand],
+                names=["sample", "strand"]
+            ).to_frame(index=False),
+            how="cross"
     )
 
     template["sample"] = template["sample"].astype(str)
