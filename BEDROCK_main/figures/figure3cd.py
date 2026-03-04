@@ -94,7 +94,7 @@ def summarize_modifications(bed_df, window_pr, mod_codes):
 
     template = all_windows.merge(
             pd.MultiIndex.from_product(
-                [sample, strand],
+                [samples, strand],
                 names=["sample", "strand"]
             ).to_frame(index=False),
             how="cross"
