@@ -51,6 +51,8 @@ def load_samples(spreadsheet, chr_map):
 
         bed = bed.drop(columns=[c for c in DROP_BEDMETHYL_COLUMNS if c in bed.columns])
         bed["Chromosome"] = bed["Chromosome"].replace(chr_map)
+        sample_name = row["sample_name"].strip().strip("'\"")
+        bed["sample_name"] = sample_name
         unmapped = bed["Chromosome"].isna().sum()
 
         if unmapped > 0:
