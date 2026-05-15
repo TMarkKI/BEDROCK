@@ -120,6 +120,10 @@ def summarize_modifications(bed_df, window_pr, mod_codes):
     
 def plot_mod_windows(df, outpath, ylab):
 
+    if df.empty:
+        print(f"Skipping plot {outpath}:no data. Might be an error or your sample does not contain the specific modification.")
+        return
+
     print(df.columns)
     print(df["mod_count"].abs().max())
 
@@ -132,9 +136,10 @@ def plot_mod_windows(df, outpath, ylab):
         ordered=True
     )
 
+    present_samples = sorted(df["sample"].dropna().unique())
     df["sample"] = pd.Categorical(
         df["sample"],
-        categories=sorted(df["sample"].unique()),
+        categories=present_samples,
         ordered=True
     )
 
@@ -170,6 +175,13 @@ def plot_mod_windows(df, outpath, ylab):
 
     g.set_axis_labels("Genomic Position (kb)", ylab)
     g.set_titles(col_template="{col_name}", row_template="")
+
+    num_cols = len(df["Chromosome"].cat.categories)
+    for i, sample_name in enumerate(g.row_names):
+        ax = g.axes[i, num_cols - 1]
+        ax.yaxis.set_label_position("right")
+        ax.set_ylabel(str(sample_name), rotation=270, labelpad=15, va="bottom", fontsize=10)
+        
 
     plt.tight_layout()
     plt.savefig(outpath, dpi=300)
