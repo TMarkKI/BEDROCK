@@ -59,7 +59,8 @@ def main():
     )
 
     bed_all = pd.concat(
-        [s["bed"].assign(sample_name=name) for name, s in samples.items()]
+        [s["bed"].assign(sample_name=str(name).strip().strip("'\"")) for name, s in samples.items()]
+        ignore_index=True
     )
 
     # ---- FIGURE 1 ----
