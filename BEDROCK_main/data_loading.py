@@ -3,7 +3,9 @@ import pyranges as pr
 from config import BEDMETHYL_COLUMNS, DROP_BEDMETHYL_COLUMNS
 
 def load_chr_map(chr_list_file):
-    df = pd.read_csv(chr_list_file, sep="\t", header=None, names=["ref_chr", "assigned_chr"])
+    df = pd.read_csv(chr_list_file, sep="\t", header=None, names=["ref_chr", "assigned_chr"], lineterminator="\n")
+    df["ref_chr"] = df["ref_chr"].astype(str).str.strip()
+    df["assigned_chr"] = df["assigned_chr"].astype(str).str.strip()
     return dict(zip(df["ref_chr"], df["assigned_chr"]))
 
 def load_fai(fai_file, chr_map):
