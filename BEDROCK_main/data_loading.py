@@ -22,20 +22,20 @@ def load_samples(spreadsheet, chr_map):
     samples = {}
 
     for _, row in meta.iterrows():
-        bed = pd.read_csv(row.bedmethyl_path, sep="\t", header=None)
+        bed = pd.read_csv(row.bedmethyl_path, sep="\t", header=None, quotechar="'", quoting=0)
 
         n_expected = len(BEDMETHYL_COLUMNS)
         n_found = bed.shape[1]
 
         if n_found > n_expected:
             print(
-                f"[WARN] {row.sample}: BEDMethyl file has {n_found} columns; "
+                f"[WARN] {row['sample_name']}: BEDMethyl file has {n_found} columns; "
                 f"only the first {n_expected} will be used. "
                 f"Extra columns ignored: {n_found - n_expected}"
             )
         elif n_found < n_expected:
             raise ValueError(
-                f"[ERROR] {row.sample}: BEDMethyl file has {n_found} columns, "
+                f"[ERROR] {row['sample_name']}: BEDMethyl file has {n_found} columns, "
                 f"but {n_expected} expected. File format may be incompatible. "
                 f"Recheck if in Bedmethyl format (remember only ModKit bedmethyl format is compatible with this BEDROCK version)."
             )
@@ -43,7 +43,7 @@ def load_samples(spreadsheet, chr_map):
         bed = bed.iloc[:, :len(BEDMETHYL_COLUMNS)]
         bed.columns = BEDMETHYL_COLUMNS
 
-        print(f"[INFO] {row.sample}: BEDMethyl column mapping:")
+        print(f"[INFO] {row['sample_name']}: BEDMethyl column mapping:")
 
         for i, col in enumerate(BEDMETHYL_COLUMNS):
             print(f"  column {i:02d} → {col}")
@@ -52,12 +52,12 @@ def load_samples(spreadsheet, chr_map):
         bed = bed.drop(columns=[c for c in DROP_BEDMETHYL_COLUMNS if c in bed.columns])
         bed["Chromosome"] = bed["Chromosome"].replace(chr_map)
         sample_name = row["sample_name"].strip().strip("'\"")
-        bed["sample_name"] = sample_name
-        unmapped = bed["Chromosome"].isna().sum()
+        sample_type = row["sample_type"].strip().strip("'\"")
 
+        unmapped = bed["Chromosome"].isna().sum()
         if unmapped > 0:
             print(
-                f"[WARN] {row.sample}: {unmapped} BED entries could not be "
+                f"[WARN] {row["sample_name"]}: {unmapped} BED entries could not be "
                 "mapped via chr_map and were set to NA"
             )
 
@@ -65,11 +65,8 @@ def load_samples(spreadsheet, chr_map):
         depth.columns = ["Chromosome", "Position", "Coverage_depth"]
         depth["Chromosome"] = depth["Chromosome"].replace(chr_map)
         
-        sample_name = row["sample_name"]
-        sample_type = row["sample_type"]
-
         samples[sample_name] = {
-            "type": row.sample_type,
+            "type": sample_type,
             "bed": bed,
             "depth": depth,
             "mean_depth": depth.Coverage_depth.mean()
