@@ -149,7 +149,8 @@ def plot_mod_windows(df, outpath, ylab):
         col="Chromosome",
         sharex=False,
         sharey=True,
-        height=3
+        height=3,
+        gridspec_kw={"hspace": 0.4}
     )
 
     def draw(data, **kwargs):
@@ -177,12 +178,22 @@ def plot_mod_windows(df, outpath, ylab):
     g.set_titles(col_template="{col_name}", row_template="")
 
     num_cols = len(df["Chromosome"].cat.categories)
+    max_name_len = max(len(str(s)) for s in g.row_names)
+    right_margin = max(0.85, 1 - (max_name_len * 0.008))
+    
     for i, sample_name in enumerate(g.row_names):
         ax = g.axes[i, num_cols - 1]
-        ax.yaxis.set_label_position("right")
-        ax.set_ylabel(str(sample_name), rotation=270, labelpad=15, va="bottom", fontsize=10)
-        
+        bbox = ax.get_position()
+        g.figure.text(
+            right_margin + 0.01,
+            bbox.y0 + bbox.height / 2,
+            str(sample_name).strip("'\""),
+            va="center",
+            ha="left",
+            fontsize=10,
+            transform=g.figure.transFigure
+        )
 
-    plt.tight_layout()
-    plt.savefig(outpath, dpi=300)
+    plt.subplots_adjust(right=right_margin)
+    plt.savefig(outpath, dpi=300, bbox_inches="tight")
     plt.close()
