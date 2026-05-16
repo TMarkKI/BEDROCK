@@ -149,8 +149,7 @@ def plot_mod_windows(df, outpath, ylab):
         col="Chromosome",
         sharex=False,
         sharey=True,
-        height=3,
-        gridspec_kw={"hspace": 0.4}
+        height=3
     )
 
     def draw(data, **kwargs):
@@ -173,7 +172,6 @@ def plot_mod_windows(df, outpath, ylab):
         ax.set_xticklabels((ax.get_xticks() / 1000).astype(int))
 
     g.map_dataframe(draw)
-
     g.set_axis_labels("Genomic Position (kb)", ylab)
     g.set_titles(col_template="{col_name}", row_template="")
 
@@ -194,6 +192,6 @@ def plot_mod_windows(df, outpath, ylab):
             transform=g.figure.transFigure
         )
 
-    plt.subplots_adjust(right=right_margin)
+    plt.subplots_adjust(hspace=0.4, right=right_margin)
     plt.savefig(outpath, dpi=300, bbox_inches="tight")
     plt.close()
