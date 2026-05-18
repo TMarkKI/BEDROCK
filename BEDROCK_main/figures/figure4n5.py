@@ -34,12 +34,10 @@ def assign_genes(df_bed, genes_pr):
     overlaps = mods.join(genes_pr)
     odf = overlaps.df
 
-    if "Name" in odf.columns:
-        gene_col = "Name"
-    elif "gene_id" in odf.columns:
-        gene_col = "gene_id"
-    elif "ID" in odf.columns:
-        gene_col = "ID"
+    for gene_column_name in ["Name", "gene_id", "ID", "gene_name", "locus_tag", "Parent"]:
+        if gene_column_name in odf.columns:
+            gene_col = gene_column_name
+            break
     else:
         raise RuntimeError("No gene identifier column found in GFF (expected Name, gene_id, or ID)")
 
