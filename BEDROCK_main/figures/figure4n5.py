@@ -111,8 +111,9 @@ def plot_heatmap(
         metric="euclidean",
         method="complete",
         row_cluster=False,
-        column_cluster=True,
+        col_cluster=True,
         yticklabels=False,
+        figsize=figsize
     )
     plt.savefig(outfile, dpi=300)
     plt.close()
