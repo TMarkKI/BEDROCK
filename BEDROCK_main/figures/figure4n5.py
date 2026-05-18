@@ -34,16 +34,27 @@ def assign_genes(df_bed, genes_pr):
     overlaps = mods.join(genes_pr)
     odf = overlaps.df
 
+    if odf.empty:
+        raise RuntimeError(
+            "No overlaps between gene annotations and BED entries."
+            "Please check that chromosome names match bed files and genes."
+        )
+
+    gene_col = None
+
     for gene_column_name in ["Name", "gene_id", "ID", "gene_name", "locus_tag", "Parent"]:
         if gene_column_name in odf.columns:
             gene_col = gene_column_name
             break
-    else:
-        raise RuntimeError("No gene identifier column found in GFF (expected Name, gene_id, or ID)")
+    if gene_col is None:
+        raise RuntimeError(
+            f"No gene identifier column found. Avaiable columns: {odf.columns.tolist()}"
+        )
 
-    odf = odf[
-        ["Chromosome", "Start", "End", gene_col]
-    ].rename(columns={gene_col: "gene"})
+    odf = odf[["Chromosome", "Start", "End", gene_col]].copy()
+    odf[gene_col] = odf[gene_col].astype(str).str.replace("^gene:", "", regex=True)
+
+    odf = odf.rename(columns-{gene_col: "gene"})
 
     df_bed = df_bed.merge(
         odf,
@@ -113,7 +124,7 @@ def plot_heatmap(
         row_cluster=False,
         col_cluster=True,
         yticklabels=False,
-        figsize=figsize
+        figsize=figsize,
     )
     plt.savefig(outfile, dpi=300)
     plt.close()
