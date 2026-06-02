@@ -103,10 +103,11 @@ def top_genes_overall(df, prop=0.05):
     return df[df["gene"].isin(top)]
 
 def top_genes_per_sample(df, prop=0.05):
+    n = int(np.ceil(len(df["gene"].unique()) * prop))
     return (
         df.sort_values("proportion_methylated", ascending=False)
         .groupby("sample_name")
-        .head(lambda x: int(np.ceil(len(x) * prop)))
+        .head(n)
     )
 
 
