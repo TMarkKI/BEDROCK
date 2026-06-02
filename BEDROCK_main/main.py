@@ -9,7 +9,7 @@ from check_install import check_install
 from figures.figure1 import figure_1a, figure_1b
 from figures.figure2 import base_composition, plot_base_composition
 from figures.merge_figure3 import run_figure3
-from figures.figure4n5 import run_figure4, assign_genes, run_figure5
+from figures.figure4n5 import run_figure4, assign_genes, run_figure5, remap_chromosomes
 from figures.figure6 import run_figure6
 
 def main():
@@ -105,6 +105,7 @@ def main():
 
     # ---- FIGURE 4&5 ----
     genes_pr = load_genes_as_pyranges(args.annotation)
+    genes_pr = remap_chromosomes(genes_pr, chr_map)
 
     run_figure4(
         bed_all, 
@@ -127,6 +128,14 @@ def main():
     df_gene = assign_genes(bed_all, genes_pr)
     df_gene = df_gene.dropna(subset=["gene"])
 
+    df_gene["gene"] = (
+        df_gene["gene"]
+        .astype(str)
+        .str.strip()
+        .str.strip("'\"")
+        .str.replace("^gene:", "", regex=True)
+    )
+
     mod_summary = (
         df_gene[["gene", "sample", "percent_mod"]]
         .rename(columns={"percent_mod": "mod_percentage"})
@@ -134,8 +143,10 @@ def main():
 
     gene_positions = (
         genes_pr.df
-        .assign(midpoint=lambda x: (x.Start + x.End) // 2)
-        [["gene_id", "seqnames", "midpoint"]]
+        .assign(midpoint=lambda x: (x.Start + x.End) // 2,
+        gene_id=lambda x: x["gene_id"].astype(str).str.replace("^gene:", "", regex=True))
+        [["gene_id", "Chromosome", "midpoint"]]
+        .rename(columns={"Chromosome": "seqnames"})
     )
 
     run_figure6(
