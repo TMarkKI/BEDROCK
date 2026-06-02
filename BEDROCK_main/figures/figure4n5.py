@@ -52,9 +52,7 @@ def assign_genes(df_bed, genes_pr):
         )
 
     odf = odf[["Chromosome", "Start", "End", gene_col]].copy()
-    odf[gene_col] = odf[gene_col].astype(str).str.replace("^gene:", "", regex=True)
-
-    odf = odf.rename(columns-{gene_col: "gene"})
+    odf = odf.rename(columns={gene_col: "gene"})
 
     df_bed = df_bed.merge(
         odf,
@@ -137,8 +135,6 @@ def remap_chromosomes(genes_pr, chrom_map):
     return pr.PyRanges(df)
 
 def run_figure4(df_bed, genes_pr, outdir):
-    genes_pr = remap_chromosomes(genes_pr, chrom_map)
-    
     df_bed = df_bed[df_bed["mod_score"] >= 50] #threshold for depth
     df = assign_genes(df_bed, genes_pr)
     df = df.dropna(subset=["gene"])
