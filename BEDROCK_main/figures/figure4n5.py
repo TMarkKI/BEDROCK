@@ -120,7 +120,7 @@ def plot_heatmap(
         metric="euclidean",
         method="complete",
         row_cluster=False,
-        col_cluster=True,
+        col_cluster=False,
         yticklabels=False,
         figsize=figsize,
     )
