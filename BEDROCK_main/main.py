@@ -6,6 +6,7 @@ import json
 from args import get_args
 from data_loading import load_chr_map, load_fai, load_samples, load_genes_as_pyranges
 from check_install import check_install
+from methylation_summary import count_reference_bases, methylation_summary
 from figures.figure1 import figure_1a, figure_1b
 from figures.figure2 import base_composition, plot_base_composition
 from figures.merge_figure3 import run_figure3
@@ -92,6 +93,15 @@ def main():
     )
 
     print(f"[INFO] Figure 2 produced")
+
+    # ---- Methylation Summary ----
+    methylation_summary(
+        samples,
+        args.ref,
+        chr_map,
+        outdir,
+    )
+    print(f"[INFO] Methylation summary produced")
 
     # ---- FIGURE 3A/B ----
     run_figure3(
