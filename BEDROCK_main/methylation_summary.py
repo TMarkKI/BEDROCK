@@ -15,9 +15,13 @@ def count_reference_bases(fasta_path, chrom_map=None):
         chrom = chrom_map.get(record.id, record.id)
         seq = str(record.seq).upper()
         a_count = seq.count("A")
+        t_count = seq.count("T")
         c_count = seq.count("C")
+        g_count = seq.count("G")
         genome_totals["A"] += a_count
+        genome_totals["A"] += t_count
         genome_totals["C"] += c_count
+        genome_totals["G"] += g_count
         records.append({"Chromosome": chrom, "A": a_count, "C": c_count})
     per_chrom = pd.DataFrame(records)
     
