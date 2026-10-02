@@ -79,7 +79,6 @@ def methylation_summary(samples, fasta_path, chrom_map, outdir, min_mod_reads=1)
     for sample_name, sample in samples.items():
         bed = sample["bed"]
 
-        # individual modifications
         for code in bed["mod_code"].unique():
             ref_base = MOD_BASE_MAP[code]
             pos = _to_positions(bed[bed["mod_code"] == code])
@@ -91,7 +90,6 @@ def methylation_summary(samples, fasta_path, chrom_map, outdir, min_mod_reads=1)
                 **_metrics(pos, reference_counts[ref_base], min_mod_reads),
             })
 
-        # 5mC + 5hmC combined: modified if either is called at the position
         c_bed = bed[bed["mod_code"].isin(["m", "h"])]
         if not c_bed.empty:
             pos = _to_positions(c_bed)
@@ -108,8 +106,8 @@ def methylation_summary(samples, fasta_path, chrom_map, outdir, min_mod_reads=1)
     mod_order = ["5mC", "5hmC", "5mC+5hmC combined", "6mA"]
     out["modification"] = pd.Categorical(
         out["modification"],
-        base_totals = base_totals_summary(samples, reference_counts)
-        base_totals.to_csv(f"{outdir}/base_totals_summary.tsv", sep="\t", index=False)
+        base_totals = base_totals_summary(samples, reference_counts),
+        base_totals.to_csv(f"{outdir}/base_totals_summary.tsv", sep="\t", index=False),
         categories=mod_order + [m for m in out["modification"].unique() if m not in mod_order],
         ordered=True,
     )
