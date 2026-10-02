@@ -48,7 +48,7 @@ def get_args():
 
     parser.add_argument(
         "--annotation",
-        required=True,
+        required=False,
         help="GFF3 annotation file (.gff)"
     )
 
