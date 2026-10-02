@@ -29,7 +29,6 @@ def main():
         "chr_list": args.chr_list,
         "fai": args.fai,
         "ref": args.ref,
-        "annotation": args.annotation,
     }
 
     for name, path in required_files.items():
