@@ -7,7 +7,7 @@ MOD_NAME_MAP = {"m": "5mC", "h": "5hmC", "a": "6mA"}
 
 MOD_COL = "mod_score"
 COV_COL = "mod_cov"
-POS_COLS = ["Chromosome", "start_chrom_pos", "strand"]
+POS_COLS = ["Chromosome", "Start_chrom_pos", "strand"]
  
  
 def count_reference_bases(fasta_path, chrom_map=None):
