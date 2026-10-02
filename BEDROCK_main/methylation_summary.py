@@ -1,150 +1,89 @@
-# genome-wide methylation summary (5mC / 5hmC / 6mA vs reference)
+# genome-wide methylation summary (5mC / 5hmC / 6mA)
 import pandas as pd
 from Bio import SeqIO
- 
-MOD_BASE_MAP = {"m": "C", "h": "C", "a": "A"}
-BASE_MOD_CODES = {"C": ["m", "h"], "A": ["a"]}
+
 MOD_NAME_MAP = {"m": "5mC", "h": "5hmC", "a": "6mA"}
+BASE_MOD_CODES = {"C": ["m", "h"], "A": ["a"]}
 
 MOD_COL = "mod"
 COV_COL = "mod_score"
 POS_COLS = ["Chromosome", "Start_chrom_pos", "strand"]
- 
- 
+
+
+def methylation_summary(samples, outdir="."):
+    """Total C / A calls = summed coverage; each modification = summed modified
+    calls / total calls for that base."""
+    rows = []
+    for sample_name, sample in samples.items():
+        bed = sample["bed"]
+
+        for ref_base, codes in BASE_MOD_CODES.items():
+            sub = bed[bed["mod_code"].isin(codes)]
+            if sub.empty:
+                continue
+
+            total_calls = sub.groupby(POS_COLS)[COV_COL].max().sum()
+
+            n_by_code = {}
+            for code in codes:
+                if code not in sub["mod_code"].values:
+                    continue
+                n_by_code[MOD_NAME_MAP[code]] = sub.loc[sub["mod_code"] == code, MOD_COL].sum()
+
+            if len(n_by_code) > 1:   # C: 5mC + 5hmC combined
+                n_by_code["5mC+5hmC combined"] = sum(n_by_code.values())
+
+            for modification, n_mod in n_by_code.items():
+                rows.append({
+                    "sample_name": sample_name,
+                    "ref_base": ref_base,
+                    "total_calls": total_calls,
+                    "modification": modification,
+                    "n_modified": n_mod,
+                    "percent_modified": n_mod / total_calls * 100 if total_calls else float("nan"),
+                })
+
+    out = pd.DataFrame(rows)
+    out.to_csv(f"{outdir}/methylation_summary.tsv", sep="\t", index=False)
+
+    with open(f"{outdir}/methylation_summary.txt", "w") as f:
+        f.write("Genome-wide methylation summary (all calls, no mod_score filter)\n")
+        f.write("Total calls = summed coverage over all positions called for that base\n")
+        f.write("=" * 65 + "\n")
+        for sample_name in out["sample_name"].unique():
+            f.write(f"\nSample: {sample_name}\n")
+            s = out[out["sample_name"] == sample_name]
+            for ref_base in s["ref_base"].unique():
+                b = s[s["ref_base"] == ref_base]
+                f.write(f"  Total {ref_base} calls: {b['total_calls'].iloc[0]:,.0f}\n")
+                for _, r in b.iterrows():
+                    f.write(
+                        f"    {r['modification']:<20s} {r['n_modified']:>12,.0f} modified "
+                        f"= {r['percent_modified']:.4f}%\n"
+                    )
+
+    print(out)
+    return out
+
+reference_counts.py
+
+python
+# reference base counts (C+G and A+T, both strands)
+import pandas as pd
+from Bio import SeqIO
+
+
 def count_reference_bases(fasta_path, chrom_map=None):
     chrom_map = chrom_map or {}
     records = []
     genome_totals = {"A": 0, "C": 0}
-    
+
     for record in SeqIO.parse(fasta_path, "fasta"):
         chrom = chrom_map.get(record.id, record.id)
         seq = str(record.seq).upper()
         a, t, c, g = (seq.count(b) for b in "ATCG")
         genome_totals["A"] += a + t
         genome_totals["C"] += c + g
-        records.append({"Chromosome": chrom, "A": a, "T" : t, "C": c, "G" : g})
-    
+        records.append({"Chromosome": chrom, "A": a, "T": t, "C": c, "G": g})
+
     return genome_totals, pd.DataFrame(records)
-
-def _to_positions(df):
-    return (
-        df.groupby(POS_COLS, as_index=False)
-        .agg(mod=(MOD_COL, "sum"), cov=(COV_COL, "max"))
-    )
-
-def _metrics(pos, ref_total, min_mod_reads):
-    n_mod_reads = pos["mod"].sum()
-    total_reads = pos["cov"].sum()
-    n_pos_cov = len(pos)
-    n_pos_mod = int((pos["mod"] >= min_mod_reads).sum())
-    return {
-        "n_modified_reads": n_mod_reads,
-        "total_reads": total_reads,
-        "percent_modified_reads": n_mod_reads / total_reads * 100 if total_reads else float("nan"),
-        "n_positions_covered": n_pos_cov,
-        "n_positions_modified": n_pos_mod,
-        "total_ref_positions": ref_total,
-        "percent_ref_positions_modified": n_pos_mod / ref_total * 100,
-        "percent_covered_positions_modified": n_pos_mod / n_pos_cov *100 if n_pos_cov else float("nan"),
-    }
-
-def base_totals_summary(samples, reference_counts):
-    rows = []
-    for sample_name, sample in samples.items():
-        bed = sample["bed"]
-        for ref_base, codes in BASE_MOD_CODES.items():
-            sub = bed[bed["mod_code"].isin(codes)]
-            if sub.empty:
-                continue
-            pos = _to_positions(sub)
-            n_mod = pos["mod"].sum()
-            total_calls = pos["cov"].sum()
-            rows.append({
-                "sample_name": sample_name,
-                "ref_base": ref_base,
-                "total_ref_bases": reference_counts[ref_base],
-                "n_positions_covered": len(pos),
-                "total_calls": total_calls,
-                "n_modified_calls": n_mod,
-                "n_unmodified_calls": total_calls - n_mod,
-                "percent_modified_calls": n_mod / total_calls * 100 if total_calls else float("nan"),
-                "mean_depth_per_covered_position": total_calls / len(pos),
-            })
-    return pd.DataFrame(rows)
- 
-def methylation_summary(samples, fasta_path, chrom_map, outdir, min_mod_reads=1):
-    reference_counts, _ = count_reference_bases(fasta_path, chrom_map)
-
-    rows = []
-    for sample_name, sample in samples.items():
-        bed = sample["bed"]
-
-        for code in bed["mod_code"].unique():
-            ref_base = MOD_BASE_MAP[code]
-            pos = _to_positions(bed[bed["mod_code"] == code])
-            rows.append({
-                "sample_name": sample_name,
-                "mod_code": code,
-                "modification": MOD_NAME_MAP[code],
-                "ref_base": ref_base,
-                **_metrics(pos, reference_counts[ref_base], min_mod_reads),
-            })
-
-        c_bed = bed[bed["mod_code"].isin(["m", "h"])]
-        if not c_bed.empty:
-            pos = _to_positions(c_bed)
-            rows.append({
-                "sample_name": sample_name,
-                "mod_code": "m+h",
-                "modification": "5mC+5hmC combined",
-                "ref_base": "C",
-                **_metrics(pos, reference_counts["C"], min_mod_reads),
-            })
-
-    out = pd.DataFrame(rows)
-
-    mod_order = ["5mC", "5hmC", "5mC+5hmC combined", "6mA"]
-    out["modification"] = pd.Categorical(
-        out["modification"],
-        categories=mod_order + [m for m in out["modification"].unique() if m not in mod_order],
-        ordered=True,
-    )
-
-    base_totals = base_totals_summary(samples, reference_counts)
-    base_totals.to_csv(f"{outdir}/base_totals_summary.tsv", sep="\t", index=False)
-
-    txt_path = f"{outdir}/methylation_summary.txt"
-    with open(txt_path, "w") as f:
-        f.write("Genome-wide methylation summary (all calls, no mod_score filter)\n")
-        f.write(f"Position called modified if >= {min_mod_reads} modified read(s)\n")
-        f.write("=" * 65 + "\n")
-        for sample_name in out["sample_name"].unique():
-            f.write(f"\nSample: {sample_name}\n")
-            sub = out[out["sample_name"] == sample_name].sort_values("modification")
-            for _, r in sub.iterrows():
-                f.write(f"  {r['modification']}\n")
-                f.write(
-                    f"    reads:     {r['n_modified_reads']:>14,.0f} modified "
-                    f"/ {r['total_reads']:>14,.0f} total = {r['percent_modified_reads']:.4f}%\n"
-                )
-                f.write(
-                    f"    positions: {r['n_positions_modified']:>14,.0f} modified "
-                    f"/ {r['total_ref_positions']:>14,.0f} reference {r['ref_base']} "
-                    f"= {r['percent_ref_positions_modified']:.4f}% "
-                    f"({r['percent_covered_positions_modified']:.4f}% of covered)\n"
-                )
-
-        f.write("\n" + "=" * 65 + "\n")
-        f.write("Total base calls (C = 5mC+5hmC, A = 6mA)\n")
-        for _, r in base_totals.iterrows():
-            f.write(
-                f"\nSample: {r['sample_name']}  base: {r['ref_base']}\n"
-                f"  calls:     {r['n_modified_calls']:>14,.0f} modified "
-                f"/ {r['total_calls']:>14,.0f} total = {r['percent_modified_calls']:.4f}%\n"
-                f"  coverage:  {r['n_positions_covered']:>14,.0f} of {r['total_ref_bases']:,.0f} "
-                f"reference {r['ref_base']} positions covered, "
-                f"mean depth {r['mean_depth_per_covered_position']:.1f}\n"
-            )
-
-    print(out)
-    return out
