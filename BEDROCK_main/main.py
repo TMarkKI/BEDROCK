@@ -112,6 +112,10 @@ def main():
 
     print(f"[INFO] Figure 3 produced")
 
+    if args.gff is None:
+        print("[INFO] No GFF provided: skipping figures 4, 5 and 6. Finished.")
+        return
+
     # ---- FIGURE 4&5 ----
     genes_pr = load_genes_as_pyranges(args.annotation)
     genes_pr = remap_chromosomes(genes_pr, chr_map)
