@@ -106,17 +106,35 @@ def methylation_summary(samples, fasta_path, chrom_map, outdir, min_mod_reads=1)
     mod_order = ["5mC", "5hmC", "5mC+5hmC combined", "6mA"]
     out["modification"] = pd.Categorical(
         out["modification"],
-        base_totals = base_totals_summary(samples, reference_counts),
-        base_totals.to_csv(f"{outdir}/base_totals_summary.tsv", sep="\t", index=False),
         categories=mod_order + [m for m in out["modification"].unique() if m not in mod_order],
         ordered=True,
     )
+
+    base_totals = base_totals_summary(samples, reference_counts)
+    base_totals.to_csv(f"{outdir}/base_totals_summary.tsv", sep="\t", index=False)
 
     txt_path = f"{outdir}/methylation_summary.txt"
     with open(txt_path, "w") as f:
         f.write("Genome-wide methylation summary (all calls, no mod_score filter)\n")
         f.write(f"Position called modified if >= {min_mod_reads} modified read(s)\n")
         f.write("=" * 65 + "\n")
+        for sample_name in out["sample_name"].unique():
+            f.write(f"\nSample: {sample_name}\n")
+            sub = out[out["sample_name"] == sample_name].sort_values("modification")
+            for _, r in sub.iterrows():
+                f.write(f"  {r['modification']}\n")
+                f.write(
+                    f"    reads:     {r['n_modified_reads']:>14,.0f} modified "
+                    f"/ {r['total_reads']:>14,.0f} total = {r['percent_modified_reads']:.4f}%\n"
+                )
+                f.write(
+                    f"    positions: {r['n_positions_modified']:>14,.0f} modified "
+                    f"/ {r['total_ref_positions']:>14,.0f} reference {r['ref_base']} "
+                    f"= {r['percent_ref_positions_modified']:.4f}% "
+                    f"({r['percent_covered_positions_modified']:.4f}% of covered)\n"
+                )
+
+        f.write("\n" + "=" * 65 + "\n")
         f.write("Total base calls (C = 5mC+5hmC, A = 6mA)\n")
         for _, r in base_totals.iterrows():
             f.write(
