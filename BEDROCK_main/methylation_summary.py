@@ -49,15 +49,16 @@ def _metrics(pos, ref_total, min_mod_reads):
  
 def methylation_summary(samples, fasta_path, chrom_map, outdir, min_mod_reads=1):
     reference_counts, _ = count_reference_bases(fasta_path, chrom_map)
- 
+
     rows = []
     for sample_name, sample in samples.items():
         bed = sample["bed"]
- 
+
+        # individual modifications
         for code in bed["mod_code"].unique():
             ref_base = MOD_BASE_MAP[code]
             pos = _to_positions(bed[bed["mod_code"] == code])
-            row.append({
+            rows.append({
                 "sample_name": sample_name,
                 "mod_code": code,
                 "modification": MOD_NAME_MAP[code],
@@ -65,17 +66,18 @@ def methylation_summary(samples, fasta_path, chrom_map, outdir, min_mod_reads=1)
                 **_metrics(pos, reference_counts[ref_base], min_mod_reads),
             })
 
-         c_bed = bed[bed["mod_code"].isin(["m", "h"])]
-         if not c_bed.empty:
-             pos = _to_positions(c_bed)
-             rows.append({
-                 "sample_name": sample_name,
-                 "mod_code": "m+h",
-                 "modification": "5mC+5hmC combined",
-                 "ref_base": "C",
-                 **_metrics(pos, reference_counts["C"]. min_mod_reads),
-             })
-          
+        # 5mC + 5hmC combined: modified if either is called at the position
+        c_bed = bed[bed["mod_code"].isin(["m", "h"])]
+        if not c_bed.empty:
+            pos = _to_positions(c_bed)
+            rows.append({
+                "sample_name": sample_name,
+                "mod_code": "m+h",
+                "modification": "5mC+5hmC combined",
+                "ref_base": "C",
+                **_metrics(pos, reference_counts["C"], min_mod_reads),
+            })
+
     out = pd.DataFrame(rows)
 
     mod_order = ["5mC", "5hmC", "5mC+5hmC combined", "6mA"]
@@ -87,7 +89,7 @@ def methylation_summary(samples, fasta_path, chrom_map, outdir, min_mod_reads=1)
 
     txt_path = f"{outdir}/methylation_summary.txt"
     with open(txt_path, "w") as f:
-         f.write("Genome-wide methylation summary (all calls, no mod_score filter)\n")
+        f.write("Genome-wide methylation summary (all calls, no mod_score filter)\n")
         f.write(f"Position called modified if >= {min_mod_reads} modified read(s)\n")
         f.write("=" * 65 + "\n")
         for sample_name in out["sample_name"].unique():
