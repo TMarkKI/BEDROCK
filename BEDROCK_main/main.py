@@ -97,10 +97,8 @@ def main():
 
     # ---- Methylation Summary ----
     methylation_summary(
-        samples,
-        args.ref,
-        chr_map,
-        outdir,
+        samples=samples,
+        outdir=outdir,
     )
     print(f"[INFO] Methylation summary produced")
 
