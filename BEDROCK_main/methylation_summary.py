@@ -21,7 +21,7 @@ def count_reference_bases(fasta_path, chrom_map=None):
         genome_totals["A"] += a_count
         genome_totals["A"] += t_count
         genome_totals["C"] += c_count
-        genome_totals["G"] += g_count
+        genome_totals["C"] += g_count
         records.append({"Chromosome": chrom, "A": a_count, "C": c_count})
     per_chrom = pd.DataFrame(records)
     
